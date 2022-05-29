@@ -1,0 +1,21 @@
+// This chip generates control signal writeD, which controls whether to write to a register or not
+// It takes 2 inputs, instr, which tells the instruction type, and dest
+// which is a 1 bit input which tells whether to write to the register or not, when a C type instruction is there.
+
+// Truth table: 
+// instr = 1 -> c type, instr = 0 -> a type
+// | instr | dest |  write |
+// |   0   |   0  |    0   |
+// |   0   |   1  |    0   |
+// |   1   |   0  |    0   | 
+// |   1   |   1  |    1   |
+
+// This will be used for both D and M. The dest bits will be different, rest functionality is same.
+
+Chip writeHelper {
+    IN instr, dest;
+    OUT write;
+
+    PARTS:
+    And(a=instr, b=dest, out=write);
+}

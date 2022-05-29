@@ -1,0 +1,34 @@
+// This helper chip is used to calculate whether or not to jump to a particular address or do PC+1
+// It takes 5 inputs, the three jump bits J2, J1, J0 which are obtained from the instruction passed
+// The other 2 inputs are zr and ng, the 1 bit flags from the Hack ALU
+// It produces a 1 bit output load, which is then fed into the PC chip of the CPU
+// This 1 bit output load will control whether to jump or not in the actual CPU Implementation
+// Jump bits and their meaning
+// J2  |  J1  |  J0 |  Meaning  |            Load            |   
+// 0   |  0   |  0  |  No Jump  |          Always 0          |
+// 0   |  0   |  1  |  JGT      |1 when zr AND ng = 0, else 0|
+// 0   |  1   |  0  |  JEQ      |   1 when zr = 1, else 0    |
+// 0   |  1   |  1  |  JGE      |     1 when ng=0 else 0     |
+// 1   |  0   |  0  |  JLT      |     1 when ng=1 else 0     |
+// 1   |  0   |  1  |  JNE      |   1 when zr = 0, else 1    |
+// 1   |  1   |  0  |  JLE      | 1 when zr OR ng = 1 else 0 |
+// 1   |  1   |  1  |  JGT      |           Always 1         |
+
+
+Chip JumpHelper {
+    IN jump[3], zr, ng;
+    OUT load;
+
+    PARTS:
+    And(a=jump[1], b=zr, out=j1AndZr);
+    And(a=jump[2], b=ng, out=j2AndNg);
+
+    Not(in=zr, out=zrBar);
+    Not(in=ng, out=ngBar);
+
+    And(a=zrBar, b=ngBar, out=bars);
+    And(a=jump[0], b=bars, out=j0AndZrBarAndNgBar);
+    
+    Or(a=j1AndZr, b=j2AndNg, out=inter);
+    Or(a=inter, b=j0AndZrBarAndNgBar, out=load);
+}

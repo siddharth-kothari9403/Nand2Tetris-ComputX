@@ -1,0 +1,22 @@
+// This chip generates control signals muxA, and writeA.
+// It takes 2 inputs, instr, which tells the instruction type, and dest
+// which is a 1 bit input which tells whether to write to A or not.
+
+// Truth table: (when muxA=0, we write from the output of ALU, when muxA=1, we write from the instruction obtained)
+// instr = 1 -> c type, instr = 0 -> a type
+// | instr | dest | muxA | writeA |
+// |   0   |   0  |   1  |    1   |
+// |   0   |   1  |   1  |    1   |
+// |   1   |   0  |   X  |    0   |
+// |   1   |   1  |   0  |    1   |
+
+
+Chip generateA {
+    IN instr, dest;
+    OUT muxA, writeA;
+
+    PARTS:
+    Not(in=instr, out=muxA);
+    Not(in=instr, out=notInstr);
+    Or(a=notInstr, b=dest, out=writeA);
+}
